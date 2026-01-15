@@ -2,13 +2,13 @@
 
 // 1. Your Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAHkztGejStIi5rJFVJ7NO8IkVJJ2ByoE4",
-    authDomain: "oja-odan-6fc94.firebaseapp.com",
-    projectId: "oja-odan-6fc94",
-    storageBucket: "oja-odan-6fc94.appspot.com",
-    messagingSenderId: "1096739384978",
-    appId: "1:1096739384978:web:4a79774605ace1e2cbc04b",
-  measurementId: "G-Y48C843PEQ"
+    apiKey: "AIzaSyA83osiC8R4QEnvgM78l3gnNpZacR0zkHM",
+    authDomain: "robo-123fb.firebaseapp.com",
+    projectId: "robo-123fb",
+    storageBucket: "robo-123fb.firebasestorage.app",
+    messagingSenderId: "555715595228",
+    appId: "1:555715595228:web:f3b323fdda8312f6aa1d19",
+  measurementId: "G-5GVCLE2JH0"
 };
 
 // Initialize Firebase
