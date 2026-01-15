@@ -144,7 +144,7 @@ function dropDisk() {
 
 function triggerJackpot() {
     hasWonJackpot = true;
-    userBalance += 10000;
+    userBalance += 89000;
     updateUI();
     playSound('jackpot');
     document.getElementById('cert-user').innerText = userName.toUpperCase();
