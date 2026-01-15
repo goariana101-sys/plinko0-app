@@ -1,0 +1,227 @@
+/* --- TURBO PLINKO: FINAL HIGH-END MOBILE UI --- */
+:root {
+    --neon-cyan: #00f2ff;
+    --neon-orange: #ff9d00;
+    --gold: #ffcc00;
+    --dark-bg: #050a0f;
+    --glass: rgba(10, 30, 46, 0.9);
+    --border-glow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+/* --- RESET & BODY --- */
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    margin: 0; padding: 0;
+    background-color: var(--dark-bg);
+    color: white; 
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    height: 100vh; 
+    overflow: hidden; /* CRITICAL: Prevents page scrolling/wiggling */
+    display: flex; 
+    flex-direction: column;
+}
+
+/* --- HEADER & NAVIGATION --- */
+header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px 15px; 
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--neon-cyan);
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.volume-label { font-size: 9px; color: var(--neon-cyan); font-weight: bold; letter-spacing: 1px; }
+.volume-slider { width: 70px; height: 4px; accent-color: var(--neon-cyan); }
+
+.balance-container {
+    background: #000; 
+    border: 1px solid #222; 
+    padding: 8px 12px; 
+    border-radius: 12px; 
+    font-weight: 900; 
+    font-size: 1.1rem; 
+    color: #fff;
+    box-shadow: inset 0 0 8px rgba(0, 242, 255, 0.15);
+}
+
+.pill-btn-sm {
+    background: #111; 
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan); 
+    padding: 6px 14px; 
+    border-radius: 20px;
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 11px;
+    text-transform: uppercase; 
+    transition: 0.2s;
+}
+.pill-btn-sm:active { background: var(--neon-cyan); color: #000; }
+
+/* --- MAIN GAME CONTAINER --- */
+.game-container {
+    flex: 1;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; /* Keeps items tight on small screens */
+    padding: 5px;
+    width: 100%;
+}
+
+/* --- CANVAS SCALING FIX --- */
+#plinkoCanvas {
+    width: 100%; 
+    max-width: 420px; /* Limits size on tablets so it stays centered */
+    height: auto;     /* Maintains internal 600:650 ratio */
+    filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.1));
+    margin-top: 5px;
+    touch-action: none; /* Disables browser zoom/pan during gameplay */
+}
+
+/* --- MULTIPLIER BOXES --- */
+.multiplier-labels {
+    display: flex; 
+    width: 100%; 
+    max-width: 420px;
+    justify-content: center; 
+    gap: 2px; 
+    margin: 8px 0;
+}
+
+.m-box {
+    flex: 1; 
+    font-size: 9px; 
+    border: 1px solid #1a2a3a;
+    text-align: center; 
+    padding: 10px 0; 
+    color: var(--neon-orange);
+    background: rgba(0, 0, 0, 0.9); 
+    font-weight: bold; 
+    border-radius: 4px; 
+    box-shadow: inset 0 0 5px rgba(255, 157, 0, 0.2);
+}
+
+/* --- CONTROLS --- */
+.bet-selector-vertical {
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    margin: 10px 0;
+}
+
+.bet-circle-btn {
+    width: 48px; 
+    height: 48px; 
+    border-radius: 50%;
+    background: #111; 
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan); 
+    font-size: 24px; 
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: var(--border-glow);
+}
+
+#currentBetDisplay { font-size: 26px; font-weight: 900; color: white; }
+
+/* --- THE DROP BUTTON --- */
+.drop-btn {
+    width: 90%; 
+    max-width: 380px; 
+    padding: 18px; 
+    border-radius: 40px;
+    background: linear-gradient(180deg, var(--neon-orange), #ff4500);
+    border: none; 
+    color: black; 
+    font-weight: 900; 
+    font-size: 1.3rem;
+    cursor: pointer; 
+    box-shadow: 0 5px 25px rgba(255, 69, 0, 0.4);
+    transition: transform 0.1s;
+    text-transform: uppercase;
+}
+.drop-btn:active { transform: scale(0.95); filter: brightness(1.2); }
+#btnSubtext { font-size: 10px; opacity: 0.8; font-weight: bold; }
+
+/* --- RECENT WINS HISTORY --- */
+.history-container {
+    width: 90%; 
+    max-width: 400px; 
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px; 
+    padding: 6px; 
+    margin-bottom: 5px;
+}
+.history-title { font-size: 8px; color: #555; text-align: center; letter-spacing: 2px; }
+.history-list { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+.history-item {
+    background: #000; 
+    border: 1px solid var(--neon-cyan); 
+    color: var(--neon-cyan);
+    padding: 3px 10px; 
+    border-radius: 6px; 
+    font-size: 10px; 
+    font-weight: bold;
+}
+
+/* --- OVERLAYS & CENTERING FIXES --- */
+#custom-popup, #cert-overlay, #withdraw-gateway {
+    display: none; 
+    position: fixed; 
+    inset: 0; /* Ensures full screen coverage */
+    background: rgba(0, 0, 0, 0.95); 
+    backdrop-filter: blur(12px);
+    z-index: 9999; 
+    justify-content: center; 
+    align-items: center;
+    padding: 20px;
+}
+
+.popup-content {
+    background: #0a1e2e; 
+    border: 2px solid var(--neon-cyan);
+    padding: 30px; 
+    border-radius: 25px; 
+    text-align: center; 
+    width: 100%; 
+    max-width: 400px;
+    box-shadow: 0 0 40px rgba(0, 242, 255, 0.2);
+}
+
+.popup-close-btn {
+    background: white; 
+    color: black; 
+    border: none; 
+    padding: 10px 25px; 
+    border-radius: 10px; 
+    font-weight: 900; 
+    margin-top: 20px; 
+    cursor: pointer;
+}
+
+/* --- WITHDRAWAL FORM ELEMENTS --- */
+#paymentDetails {
+    width: 100%; 
+    height: 100px; 
+    background: #000; 
+    color: #fff;
+    border: 1px solid #333; 
+    padding: 15px; 
+    border-radius: 15px;
+    font-size: 14px; 
+    margin: 15px 0; 
+    outline: none; 
+    resize: none;
+}
+#paymentDetails:focus { border-color: var(--neon-cyan); }
