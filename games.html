@@ -2,117 +2,252 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Turbo Plinko</title>
-    <link rel="stylesheet" href="css/plinko.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBO GAME ARENA | LOBBY</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- DYNAMIC VIP BADGE --- */
+        .vip-badge {
+            font-size: 0.55rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 900;
+            margin-left: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .rank-rookie { background: #555; color: #fff; }
+        .rank-pro { background: var(--cyan-glow); color: #000; box-shadow: 0 0 10px var(--cyan-glow); }
+        .rank-whale { background: var(--pink-glow); color: #fff; box-shadow: 0 0 10px var(--pink-glow); }
+        .rank-overlord { background: #ffae00; color: #000; box-shadow: 0 0 15px #ffae00; animation: pulse-gold 2s infinite; }
+
+        @keyframes pulse-gold {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px #ffae00; }
+            100% { transform: scale(1); }
+        }
+
+        /* --- CYBER MUSIC CONTROL --- */
+        .music-ctrl {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s;
+        }
+        .music-ctrl:hover { border-color: var(--cyan-glow); transform: translateY(-3px); }
+
+        /* --- LIVE TOAST NOTIFICATIONS --- */
+        .toast-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .toast {
+            background: rgba(10, 10, 18, 0.95);
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--cyan-glow);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-family: 'Rajdhani', sans-serif;
+            backdrop-filter: blur(10px);
+            animation: toastIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.exit { animation: toastOut 0.5s ease forwards; }
+        @keyframes toastOut { to { transform: translateX(120%); opacity: 0; } }
+
+        /* PULSING LIVE DOT */
+        .live-dot {
+            width: 8px; height: 8px; background: #ff4444; border-radius: 50%;
+            display: inline-block; margin-right: 8px;
+            animation: live-blink 1.2s infinite;
+        }
+        @keyframes live-blink { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+    </style>
 </head>
 <body>
 
-<header>
-    <div class="header-left">
-        <div class="volume-label">SOUND <span id="volValue">50%</span></div>
-        <input type="range" min="0" max="1" step="0.1" value="0.5" class="volume-slider" oninput="setVolume(this.value)">
-        <br>
-        <button onclick="requestWithdrawal()" class="pill-btn-sm">Withdraw</button>
-    </div>
-    <div class="referral-section" style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin: 10px auto; max-width: 500px; text-align: center;">
-    <p style="font-size: 12px; margin-bottom: 5px; color: var(--neon-cyan);">REFER & EARN $100</p>
-    <div style="display: flex; gap: 5px;">
-        <input type="text" id="referralLink" readonly style="flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 5px; border-radius: 5px; font-size: 11px;">
-        <button class="pill-btn-sm" onclick="copyReferral()">Copy</button>
-    </div>
-</div>
+    <audio id="lobbyAudio" loop src="sounds/lobby_ambient.mp3"></audio>
 
-    <div class="header-right">
-        <div class="balance-container">$<span id="balanceDisplay">0.00</span></div>
-        <button class="pill-btn-sm logout-btn" onclick="location.href='index.html'">Logout</button>
-    </div>
-</header>
-
-<main class="game-container">
-    <div class="history-container">
-        <div class="history-title">RECENT WINS</div>
-        <div id="winHistory" class="history-list"></div>
+    <div id="loader" class="loading-overlay">
+        <div class="loading-text">SYNCING DATA...</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
     </div>
 
-    <canvas id="plinkoCanvas"></canvas>
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="music-ctrl" onclick="toggleMusic()">
+        <span id="musicBtn">🔇</span>
+        <span style="font-size: 0.65rem; font-weight: 800; letter-spacing: 2px;">ARENA AMBIENCE</span>
+    </div>
+
+    <header class="lobby-header">
+        <div class="user-pill">
+            <img src="img/robo-logo.png" alt="User">
+            <div>
+                <div style="display: flex; align-items: center;">
+                    <span id="userName" style="font-size: 0.7rem; opacity: 0.8;">LOADING...</span>
+                    <span id="vipBadge" class="vip-badge">---</span>
+                </div>
+                <div class="balance-val">$<span id="userBalance">0.00</span></div>
+            </div>
+        </div>
+        <div>
+            <button onclick="openWithdraw()" style="background:#00f2ff; color:#000; border:none; padding:8px 18px; border-radius:8px; font-weight:800; cursor:pointer; transition: 0.3s;">WITHDRAW</button>
+            <button onclick="firebase.auth().signOut()" style="background:none; border:1px solid #ff4444; color:#ff4444; padding:8px 12px; border-radius:8px; margin-left: 10px; cursor:pointer;">LOGOUT</button>
+        </div>
+    </header>
+
+    <div class="jackpot-ticker">
+        <div class="ticker-wrap" id="tickerContent"></div>
+    </div>
+
+    <h2 style="text-align: center; font-family: 'Orbitron'; margin: 45px 0 25px; letter-spacing: 6px; font-size: 1.2rem;">SELECT ARENA</h2>
+
+    <div class="game-grid">
+        <div class="game-card" id="card-plinko" onclick="launchGame(this, 'plinko.html')">
+            <div class="hot-badge">POPULAR</div>
+            <img src="img/plinko.png" alt="Plinko">
+            <h3 style="font-size: 0.85rem; margin: 0; letter-spacing: 2px;">PLINKO</h3>
+        </div>
+
+        <div class="game-card" id="card-car" onclick="launchGame(this, 'car_race.html')">
+            <div class="hot-badge">FAST</div>
+            <img src="img/car.png" alt="Car Race">
+            <h3 style="font-size: 0.85rem; margin: 0; letter-spacing: 2px;">CAR RACE</h3>
+        </div>
+
+        <div class="game-card" id="card-prison" onclick="launchGame(this, 'prison_break.html')">
+            <div class="hot-badge">NEW</div>
+            <img src="img/prison_break.png" alt="Prison Break">
+            <h3 style="font-size: 0.85rem; margin: 0; letter-spacing: 2px;">PRISON BREAK</h3>
+        </div>
+
+        <div class="game-card" id="card-snooker" onclick="launchGame(this, 'snooker.html')">
+            <img src="img/snooker.png" alt="Snooker">
+            <h3 style="font-size: 0.85rem; margin: 0; letter-spacing: 2px;">SNOOKER</h3>
+        </div>
+    </div>
     
-    <div class="multiplier-labels">
-        <div class="m-box">125</div><div class="m-box">14</div><div class="m-box">5</div>
-        <div class="m-box">1.3</div><div class="m-box">0.4</div><div class="m-box">0.2</div>
-        <div class="m-box">0.2</div><div class="m-box">0.4</div><div class="m-box">1.3</div>
-        <div class="m-box">5</div><div class="m-box">14</div><div class="m-box">125</div>
+    <div class="recent-winners">
+        <h3 style="font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 20px; color: var(--pink-glow);">
+            <span class="live-dot"></span>LIVE ARENA ACTIVITY
+        </h3>
+        <div id="winnersList"></div>
     </div>
 
-    <div class="bet-selector-vertical">
-        <button class="bet-circle-btn" onclick="adjustBet(5)">+</button>
-        <div class="bet-display-box" style="text-align: center;">
-            <small class="bet-label">DISK COST</small>
-            <div id="currentBetDisplay">$5</div>
-        </div>
-        <button class="bet-circle-btn" onclick="adjustBet(-5)">-</button>
-    </div>
-
-    <button class="drop-btn" onclick="dropDisk()">
-        DROP DISKS <br>
-        <small id="btnSubtext">bet amount $5.00</small>
-    </button>
-    <div class="ref-history">
-    <h3>Referral Earnings</h3>
-    <div id="refHistoryList"></div>
-</div>
-<div class="leaderboard">
-    <h3>Top Referrers</h3>
-    <div id="leaderboardList"></div>
-</div>
-</main>
-
-<div id="custom-popup">
-    <div class="popup-content">
-        <h2 style="color: var(--neon-cyan);">NOTICE</h2>
-        <p id="popup-message"></p>
-        <button onclick="closePopup()" class="popup-close-btn">UNDERSTOOD</button>
-    </div>
-</div>
-
-<div id="cert-overlay">
-    <div class="popup-content" style="border-color: var(--gold);">
-        <h1 style="color: var(--neon-orange); margin: 0; font-size: 22px; letter-spacing: 2px;">OFFICIAL JACKPOT</h1>
-        <p style="color: #888; font-size: 12px; margin: 10px 0;">AWARDED TO: <span id="cert-user" style="color: white; font-weight: bold;">USER</span></p>
-        <div style="border: 1px dashed #333; padding: 15px; margin: 15px 0;">
-            <p style="color: #555; font-size: 10px; margin: 0;">FOR THE AMOUNT OF:</p>
-            <h2 style="color: var(--gold); font-size: 32px; margin: 5px 0;">$10,000.00!</h2>
-            <p style="color: white; font-size: 11px;">Verification Required for Payout</p>
-        </div>
-        <button onclick="closeJackpot()" class="drop-btn" style="font-size: 14px; padding: 12px;">CLAIM WINNINGS</button>
-    </div>
-</div>
-
-<div id="withdraw-gateway">
-    <div class="popup-content">
-        <h2 style="color: var(--neon-orange);">WITHDRAWAL MENU</h2>
-        <p>Wallet Balance: <span id="gateBalance" style="color: var(--neon-cyan); font-weight: bold;">$0.00</span></p>
-        
-        <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Select your preferred method:</p>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-            <button class="pill-btn-sm" onclick="selectMethod('Bank')">Bank Transfer</button>
-            <button class="pill-btn-sm" onclick="selectMethod('Bitcoin')">Bitcoin BTC</button>
-        </div>
-
-        <div id="method-fields" style="display: none;">
-            <textarea id="paymentDetails" placeholder="Enter Account Details or BTC Address..."></textarea>
-            <button class="drop-btn" onclick="submitFinalWithdrawal()" style="font-size: 14px; padding: 12px;">COMPLETE WITHDRAWAL</button>
+    <div id="withdrawModal" class="modal-overlay">
+        <div class="pink-glass-modal">
+            <h2 style="font-family: 'Orbitron'; text-align: center; font-size: 1.2rem;">WITHDRAWAL</h2>
+            <p style="font-size: 0.75rem; text-align: center; opacity: 0.7;">Min withdrawal: $500.00</p>
+            <input type="number" id="withdrawAmount" placeholder="Amount ($)">
+            <input type="text" id="walletAddress" placeholder="Wallet ID / Account">
+            <button class="btn-submit" onclick="alert('Request sent to admin queue!')">SUBMIT</button>
+            <button onclick="closeModal('withdrawModal')" style="background:none; border:none; color:#555; width:100%; margin-top:15px; cursor:pointer;">CLOSE</button>
         </div>
     </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/auth.js"></script>
 
-<script src="js/config.js"></script>
+    <script>
+        const players = ["ACE", "NEON", "GHOST", "VIP_ZODIAC", "X_STRIKER", "PHANTOM", "VORTEX", "CRYPTO_KING"];
+        let isMusicOn = false;
 
-<script src="js/games.js"></script>
+        function toggleMusic() {
+            const audio = document.getElementById('lobbyAudio');
+            if(!isMusicOn) {
+                audio.play().catch(() => {});
+                document.getElementById('musicBtn').innerText = "🔊";
+            } else {
+                audio.pause();
+                document.getElementById('musicBtn').innerText = "🔇";
+            }
+            isMusicOn = !isMusicOn;
+        }
 
+        function launchGame(el, url) {
+            new Audio('sounds/poin.mp3').play().catch(() => {});
+            el.classList.add('animating');
+            setTimeout(() => { document.getElementById('loader').style.display = 'flex'; }, 200);
+            setTimeout(() => { window.location.href = url; }, 850);
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openWithdraw() { document.getElementById('withdrawModal').style.display = 'flex'; }
+
+        // VIP RANK CALCULATOR
+        function updateVIP(balance) {
+            const badge = document.getElementById('vipBadge');
+            badge.className = "vip-badge ";
+            if(balance < 1000) { badge.innerText = "ROOKIE"; badge.classList.add('rank-rookie'); }
+            else if(balance < 5000) { badge.innerText = "PRO"; badge.classList.add('rank-pro'); }
+            else if(balance < 15000) { badge.innerText = "WHALE"; badge.classList.add('rank-whale'); }
+            else { badge.innerText = "OVERLORD"; badge.classList.add('rank-overlord'); }
+        }
+
+        // GENERATE LIVE DATA
+        function spawnToast() {
+            const container = document.getElementById('toastContainer');
+            const p = players[Math.floor(Math.random()*players.length)];
+            const win = (Math.random() * 400 + 20).toFixed(2);
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<span style="font-size:0.7rem; opacity:0.6;">MATCH WON</span><br><b>${p}</b> gained <b style="color:#00ff88">+$${win}</b>`;
+            container.appendChild(t);
+            setTimeout(() => { t.classList.add('exit'); setTimeout(()=>t.remove(), 600); }, 4500);
+        }
+
+        function initLobby() {
+            const ticker = document.getElementById('tickerContent');
+            const list = document.getElementById('winnersList');
+            players.forEach(p => {
+                ticker.innerHTML += `<div class="ticker-item"><span>${p}</span> HIT A MULTIPLIER! <b style="color:#00ff88">$${(Math.random()*900+100).toFixed(2)}</b></div>`;
+            });
+            for(let i=0; i<4; i++) {
+                list.innerHTML += `<div class="winner-row"><span>${players[Math.floor(Math.random()*players.length)]}</span><span style="opacity:0.3; font-size:0.7rem;">Arena Activity</span><span class="win-amt">+$${(Math.random()*80).toFixed(2)}</span></div>`;
+            }
+        }
+
+        initLobby();
+        setInterval(spawnToast, 12000); // Popup every 12 seconds
+
+        // SYNC WITH FIREBASE
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if(doc.exists) {
+                        const d = doc.data();
+                        document.getElementById('userName').innerText = (d.userName || "PLAYER").toUpperCase();
+                        const bal = d.balance || 0;
+                        document.getElementById('userBalance').innerText = bal.toFixed(2);
+                        updateVIP(bal);
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
 </body>
 </html>
