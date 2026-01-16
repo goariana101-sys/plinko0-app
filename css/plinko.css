@@ -225,3 +225,114 @@ header {
     resize: none;
 }
 #paymentDetails:focus { border-color: var(--neon-cyan); }
+
+/* ================================
+   REFERRAL HISTORY BOX
+================================ */
+.ref-history {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 10px auto;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+}
+
+.ref-history h3 {
+    text-align: center;
+    margin: 5px 0 10px;
+    font-size: 12px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#refHistoryList {
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+#refHistoryList .history-item {
+    background: #000;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    box-shadow: inset 0 0 6px rgba(255, 204, 0, 0.3);
+}
+
+/* ================================
+   LEADERBOARD
+================================ */
+.leaderboard {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--neon-orange);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 10px auto;
+    box-shadow: 0 0 20px rgba(255, 157, 0, 0.2);
+}
+
+.leaderboard h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--neon-orange);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#leaderboardList {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.leaderboard-row {
+    background: #111;
+    border: 1px solid var(--neon-orange);
+    padding: 8px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: white;
+    box-shadow: inset 0 0 8px rgba(255, 157, 0, 0.3);
+}
+
+/* Rank styling */
+.leaderboard-row strong {
+    color: var(--gold);
+    font-size: 13px;
+}
+
+/* Scrollbar styling */
+#refHistoryList::-webkit-scrollbar,
+#leaderboardList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#refHistoryList::-webkit-scrollbar-thumb,
+#leaderboardList::-webkit-scrollbar-thumb {
+    background: var(--neon-cyan);
+    border-radius: 10px;
+}
+
+/* ================================
+   REFERRAL POPUP NOTICE
+================================ */
+.referral-bonus-popup {
+    background: #0a1e2e;
+    border: 2px solid var(--gold);
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    color: var(--gold);
+    font-weight: bold;
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.3);
+}
