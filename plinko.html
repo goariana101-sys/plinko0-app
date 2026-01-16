@@ -15,6 +15,14 @@
         <br>
         <button onclick="requestWithdrawal()" class="pill-btn-sm">Withdraw</button>
     </div>
+    <div class="referral-section" style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin: 10px auto; max-width: 500px; text-align: center;">
+    <p style="font-size: 12px; margin-bottom: 5px; color: var(--neon-cyan);">REFER & EARN $100</p>
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="referralLink" readonly style="flex: 1; background: #000; color: #fff; border: 1px solid #333; padding: 5px; border-radius: 5px; font-size: 11px;">
+        <button class="pill-btn-sm" onclick="copyReferral()">Copy</button>
+    </div>
+</div>
+
     <div class="header-right">
         <div class="balance-container">$<span id="balanceDisplay">0.00</span></div>
         <button class="pill-btn-sm logout-btn" onclick="location.href='index.html'">Logout</button>
@@ -49,6 +57,14 @@
         DROP DISKS <br>
         <small id="btnSubtext">bet amount $5.00</small>
     </button>
+    <div class="ref-history">
+    <h3>Referral Earnings</h3>
+    <div id="refHistoryList"></div>
+</div>
+<div class="leaderboard">
+    <h3>Top Referrers</h3>
+    <div id="leaderboardList"></div>
+</div>
 </main>
 
 <div id="custom-popup">
@@ -93,7 +109,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="js/firebase-config.js"></script>
+
+<script src="js/config.js"></script>
+
 <script src="js/games.js"></script>
 
 </body>
