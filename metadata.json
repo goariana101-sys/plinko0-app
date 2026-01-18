@@ -1,0 +1,10 @@
+
+{
+  "name": "Turbo Plinko Jackpot Edition",
+  "description": "A high-stakes Plinko game with built-in referral systems, jackpot triggers, and advanced withdrawal menus.",
+  "requestFramePermissions": [],
+  "assets": {
+    "sounds": "sounds/",
+    "images": "img/"
+  }
+}
