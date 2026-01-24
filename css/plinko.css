@@ -1,23 +1,1531 @@
-
+/* --- TURBO PLINKO: ULTIMATE HIGH-END MOBILE UI --- */
 :root {
     --neon-cyan: #00f2ff;
     --neon-orange: #ff9d00;
-    --gold: #ffd700;
+    --gold: #ffcc00;
+    --dark-bg: #02060a; 
+    --glass: rgba(10, 30, 46, 0.85);
 }
 
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+/* --- RESET & BODY: FIXED SCREEN FIT --- */
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    margin: 0; padding: 0;
+    background-color: var(--dark-bg);
+    background-image: 
+        radial-gradient(circle at top right, rgba(0, 242, 255, 0.05), transparent),
+        radial-gradient(circle at bottom left, rgba(255, 157, 0, 0.05), transparent);
+    color: white; 
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    height: 100vh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+}
+
+/* --- HEADER: 3D GLASS UPGRADE & ALIGNMENT FIX --- */
+header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px 15px; 
+    width: 100%; /* Fixes the left-corner gap */
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 10, 0.95) 100%);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 242, 255, 0.4);
     z-index: 1000;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
-.method-btn.active-method {
+/* 3D Cool Small Buttons */
+.pill-btn-sm {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(0, 242, 255, 0.5);
+    color: var(--neon-cyan); 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 900; 
+    font-size: 10px;
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    box-shadow: 0 2px 0px #000, 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+    transition: all 0.1s ease;
+}
+.pill-btn-sm:active { transform: translateY(2px); box-shadow: 0 0px 0px #000; }
+
+/* Diamond Glow Balance Container */
+.balance-container {
+    background: #000; 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    padding: 8px 15px; 
+    border-radius: 10px; 
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900; 
+    font-size: 1.05rem; 
+    color: #fff;
+    box-shadow: inset 0 0 12px rgba(0, 242, 255, 0.2), 0 0 20px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* --- MAIN GAME CONTAINER --- */
+.game-container {
+    flex: 1;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start;
+    padding: 0; /* Ensures full side-to-side fit */
+    width: 100%;
+}
+
+/* --- CANVAS: GLOWING DIAMOND FRAME --- */
+#plinkoCanvas {
+    width: 100vw; 
+    max-width: 420px; 
+    height: auto;     
+    border-radius: 20px;
+    margin-top: 10px;
+    touch-action: none;
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 255, 0.15);
+    background: radial-gradient(circle at center, #0a1e2e 0%, #050a0f 100%);
+}
+
+/* --- MULTIPLIER BOXES: RE-ENGINEERED FROM IMAGE --- */
+.multiplier-labels {
+    display: flex; 
+    width: 100%; 
+    max-width: 420px; /* Kept to match your original canvas width exactly */
+    justify-content: center; 
+    gap: 4px; /* Distinct spacing like the image */
+    margin: 12px 0;
+    padding: 0 5px;
+}
+
+.m-box {
+    flex: 1; 
+    font-size: 11px; 
+    font-family: 'Orbitron', sans-serif; /* Professional high-tech font */
+    text-align: center; 
+    padding: 12px 0; 
+    font-weight: 900; 
+    border-radius: 6px; /* Matching the rounded corners in the photo */
+    
+    /* 3D Glass Effect */
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.4) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    
+    /* Layered Glows: Inner highlight + Outer depth */
+    box-shadow: 
+        inset 0 1px 1px rgba(255,255,255,0.2), 
+        0 4px 10px rgba(0,0,0,0.5);
+    
+    transition: transform 0.15s ease, filter 0.15s ease;
+    text-shadow: 0 0 6px currentColor; /* Makes the text glow its own color */
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Precise Color Mapping: Red edges, Blue mid, Green/Gold center */
+/* Slots 1 & 7: Intense Red */
+.m-box:nth-child(1), .m-box:nth-child(7) { 
+    color: #ff3333; 
+    border-color: #ff3333; 
+    background: linear-gradient(180deg, #3d0000 0%, #8b0000 100%); 
+}
+
+/* Slots 2 & 6: Electric Blue */
+.m-box:nth-child(2), .m-box:nth-child(6) { 
+    color: #33aaff; 
+    border-color: #33aaff; 
+    background: linear-gradient(180deg, #00153d 0%, #0044aa 100%); 
+}
+
+/* Slots 3 & 5: Cyber Green */
+.m-box:nth-child(3), .m-box:nth-child(5) { 
+    color: #00ff88; 
+    border-color: #00ff88; 
+    background: linear-gradient(180deg, #002b15 0%, #006b3d 100%); 
+}
+
+/* Slot 4: Center Gold */
+.m-box:nth-child(4) { 
+    color: #ffcc00; 
+    border-color: #ffcc00; 
+    background: linear-gradient(180deg, #2b2b00 0%, #7a7a00 100%); 
+}
+
+/* Interaction: Subtle shine on hover */
+.m-box:hover {
+    filter: brightness(1.2);
+    transform: translateY(-1px);
+}
+
+
+/* --- CONTROLS --- */
+.bet-selector-vertical {
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    margin: 10px 0;
+}
+
+.bet-circle-btn {
+    width: 48px; 
+    height: 48px; 
+    border-radius: 50%;
+    background: #111; 
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan); 
+    font-size: 24px; 
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: var(--border-glow);
+}
+
+#currentBetDisplay { font-size: 26px; font-weight: 900; color: white; }
+
+/* --- THE DROP BUTTON: PREMIUM REDESIGN --- */
+.drop-btn {
+    width: 90%; 
+    max-width: 300px; 
+    padding: 20px; 
+    border-radius: 16px; /* Slightly more modern, less rounded than 40px */
+    
+    /* 3D Liquid Neon Background */
+    background: linear-gradient(180deg, #3d5afe 0%, #1a237e 100%); 
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 100%);
+    background-color: #3d5afe; /* Electric Blue base */
+    
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: white; 
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900; 
+    font-size: 1.4rem;
+    cursor: pointer; 
+    
+    /* Layered Glow: Internal shine + Outer neon pulse */
+    box-shadow: 
+        0 0 0 1px rgba(61, 90, 254, 0.4),
+        0 10px 30px rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.4);
+    
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle Animated Shine Effect */
+.drop-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: 0.5s;
+}
+
+.drop-btn:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.1);
+    box-shadow: 
+        0 0 25px rgba(61, 90, 254, 0.5),
+        0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+.drop-btn:active { 
+    transform: scale(0.96) translateY(1px); 
+    filter: brightness(0.9);
+}
+
+#btnSubtext { 
+    display: block;
+    font-size: 10px; 
+    opacity: 0.7; 
+    font-weight: 700; 
+    letter-spacing: 1px;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.drop-btn:active { transform: scale(0.95); filter: brightness(1.2); }
+#btnSubtext { font-size: 10px; opacity: 0.8; font-weight: bold; }
+
+/* --- RECENT WINS HISTORY --- */
+.history-container {
+    width: 90%; 
+    max-width: 400px; 
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px; 
+    padding: 6px; 
+    margin-bottom: 5px;
+}
+.history-title { font-size: 8px; color: #555; text-align: center; letter-spacing: 2px; }
+.history-list { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+.history-item {
+    background: #000; 
+    border: 1px solid var(--neon-cyan); 
+    color: var(--neon-cyan);
+    padding: 3px 10px; 
+    border-radius: 6px; 
+    font-size: 10px; 
+    font-weight: bold;
+}
+
+/* --- PREMIUM POPUP & 3D FRAME REDESIGN --- */
+#custom-popup, #cert-overlay, #withdraw-gateway {
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(2, 6, 12, 0.9); /* Deeper, more mature overlay */
+    backdrop-filter: blur(15px);
+    z-index: 9999; 
+    justify-content: center; 
+    align-items: center;
+    padding: 20px;
+}
+
+.popup-content {
+    background: #0f172a; /* Slate background for a mature look */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle frame border */
+    padding: 0; /* Remove padding to allow the header to touch the edges */
+    border-radius: 20px; 
+    text-align: center; 
+    width: 100%; 
+    max-width: 420px;
+    position: relative;
+    overflow: hidden;
+    /* 3D Frame Depth */
+    box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 20px 50px rgba(0, 0, 0, 0.8),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* --- THE 3D HEADER / MENU BAR --- */
+.popup-content::before {
+    content: "ACTION REQUIRED"; /* Default title if none exists */
+    display: block;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    padding: 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+    text-align: left;
+    padding-left: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* --- THE 'X' CANCEL BUTTON (Right Top) --- */
+.popup-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.05); 
+    color: white; 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    width: 32px;
+    height: 32px;
+    border-radius: 8px; 
+    font-weight: 400; 
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    margin: 0; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+/* Visual 'X' symbol if your button text is just empty */
+.popup-close-btn::after { content: '×'; }
+
+.popup-close-btn:hover {
+    background: #ff4444; /* Alert red on hover */
+    color: white;
+    border-color: #ff4444;
+    transform: rotate(90deg);
+}
+
+/* Content Container (to restore padding for the body of the popup) */
+.popup-body-wrap {
+    padding: 30px;
+}
+
+/* --- WITHDRAWAL FORM ELEMENTS --- */
+#paymentDetails {
+    width: 90%; 
+    height: 120px; 
+    background: #020617; 
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    padding: 15px; 
+    border-radius: 12px;
+    font-size: 14px; 
+    margin: 15px auto; 
+    display: block;
+    outline: none; 
+    resize: none;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    transition: border-color 0.3s ease;
+}
+
+#paymentDetails:focus { 
+    border-color: var(--neon-cyan); 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 15px rgba(0, 242, 255, 0.1);
+}
+
+/* ================================
+   REFERRAL HISTORY BOX
+================================ */
+.ref-history {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 10px auto;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+}
+
+.ref-history h3 {
+    text-align: center;
+    margin: 5px 0 10px;
+    font-size: 12px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#refHistoryList {
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+#refHistoryList .history-item {
+    background: #000;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    box-shadow: inset 0 0 6px rgba(255, 204, 0, 0.3);
+}
+
+/* ================================
+   LEADERBOARD
+================================ */
+.leaderboard {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--neon-orange);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 10px auto;
+    box-shadow: 0 0 20px rgba(255, 157, 0, 0.2);
+}
+
+.leaderboard h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--neon-orange);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#leaderboardList {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.leaderboard-row {
+    background: #111;
+    border: 1px solid var(--neon-orange);
+    padding: 8px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: white;
+    box-shadow: inset 0 0 8px rgba(255, 157, 0, 0.3);
+}
+
+/* Rank styling */
+.leaderboard-row strong {
+    color: var(--gold);
+    font-size: 13px;
+}
+
+/* Scrollbar styling */
+#refHistoryList::-webkit-scrollbar,
+#leaderboardList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#refHistoryList::-webkit-scrollbar-thumb,
+#leaderboardList::-webkit-scrollbar-thumb {
     background: var(--neon-cyan);
-    color: black;
-    border-color: white;
+    border-radius: 10px;
 }
 
-#paymentDetails::placeholder {
-    color: #444;
+/* ================================
+   REFERRAL POPUP NOTICE
+================================ */
+.referral-bonus-popup {
+    background: #0a1e2e;
+    border: 2px solid var(--gold);
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    color: var(--gold);
+    font-weight: bold;
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.3);
+}
+
+/* --- THE STYLISH 3D FRAME POPUP --- */
+#deposit-popup,
+#deposit-wallets,
+#deposit-address-popup,
+#custom-popup, 
+#cert-overlay, 
+#withdraw-gateway {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(2, 6, 12, 0.92); /* Deeper, more mature overlay */
+    backdrop-filter: blur(15px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#deposit-popup .popup-content,
+#deposit-wallets,
+#deposit-address-popup,
+.popup-content {
+    background: #0f172a; /* Slate-dark surface */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 20px;
+    width: 360px;
+    max-width: 90%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    /* 3D Frame Depth */
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.7),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* --- THE 3D HEADER MENU BAR --- */
+#deposit-popup .popup-content::before,
+#deposit-wallets::before,
+#deposit-address-popup::before,
+.popup-content::before {
+    content: "ACTION REQUIRED"; /* Matching your image text */
+    display: block;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    padding: 14px 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--neon-cyan); /* Using your variable from plinko.css */
+    letter-spacing: 2px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* --- THE STYLISH 'X' CANCEL BUTTON --- */
+.popup-close-btn {
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #ff4b4b; /* Stylish red X */
+    font-size: 28px;
+    font-family: 'Arial', sans-serif;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 10;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    padding: 5px;
+}
+
+.popup-close-btn:hover {
+    transform: scale(1.2) rotate(90deg);
+    filter: drop-shadow(0 0 5px #ff4b4b);
+}
+
+/* Reset text for the body of the popup */
+.popup-content h2 {
+    margin-top: 25px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-orange);
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+/* --- BUTTONS: PREMIUM GRADIENT --- */
+#deposit-popup button,
+#deposit-wallets button,
+#deposit-address-popup button {
+    background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 85%;
+    margin: 10px auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* --- WALLET SELECTION LIST (Image Style) --- */
+#deposit-wallets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 30px;
+}
+
+#deposit-wallets .pill-btn-sm {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 13px;
+    text-align: left;
+    width: 85%;
+    margin: 0 auto;
+}
+
+/* --- TEXTAREA: DARK INSET --- */
+#deposit-address-popup textarea {
+    width: 85%;
+    background: #020617;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: var(--neon-cyan);
+    padding: 15px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+#plinkoCanvas {
+    border-radius: 18px;
+    border: 2px solid rgba(0,242,255,0.4);
+    box-shadow:
+        inset 0 0 30px rgba(0,242,255,0.15),
+        0 0 35px rgba(0,242,255,0.25);
+    background: radial-gradient(circle at top, #071822, #050a0f);
+}
+
+/* ==========================
+   GLOBAL RESPONSIVE FIXES
+========================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* prevent horizontal scroll */
+}
+
+main, header, footer, .game-container {
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+/* Canvas responsive */
+#plinkoCanvas {
+    width: 100%;
+    height: auto; 
+    max-width: 420px; 
+    display: block;
+    margin: 10px auto;
+}
+
+/* Multiplier boxes wrap on mobile */
+.multiplier-labels {
+    display: flex;
+    flex-wrap: wrap; /* allow wrapping */
+    justify-content: center;
+    gap: 4px;
+}
+
+.m-box {
+    flex: 1 1 30px; /* flexible for small screens */
+    min-width: 30px;
+    max-width: 50px;
+}
+
+/* Popups responsive */
+.deposit-popup, #custom-popup, #cert-overlay, #withdraw-gateway, 
+#early-withdraw-popup, #early-payment-popup, #early-wallet-popup {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+/* Buttons scale with screen */
+.drop-btn, .pill-btn-sm, .bet-circle-btn {
+    max-width: 90%;
+}
+
+/* Referral & leaderboard panels */
+.ref-history, .leaderboard {
+    width: 100%;
+    max-width: 420px;
+    margin: 10px auto;
+}
+
+/* ==========================
+   MEDIA QUERIES
+========================== */
+
+/* Mobile Phones */
+@media (max-width: 480px) {
+    #plinkoCanvas { max-width: 100%; }
+    .m-box { font-size: 9px; padding: 6px 2px; }
+    .drop-btn { font-size: 1.1rem; padding: 14px; }
+    .bet-display-box #currentBetDisplay { font-size: 18px; }
+    .ref-history, .leaderboard { font-size: 10px; }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+    #plinkoCanvas { max-width: 360px; }
+    .m-box { font-size: 10px; }
+    .drop-btn { font-size: 1.2rem; padding: 16px; }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+    #plinkoCanvas { max-width: 420px; margin-top: 20px; }
+    .m-box { font-size: 11px; }
+    .drop-btn { font-size: 1.4rem; padding: 20px; }
+}
+
+/* ================================
+   HEADER BALANCE ALIGNMENT FIX
+================================= */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;               
+    width: 100%;
+    box-sizing: border-box;         
+    overflow: hidden;               
+}
+
+header .user-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;                      
+    max-width: 100%;                
+    flex-shrink: 0;                 
+}
+
+header .user-pill, 
+header .balance-container, 
+header .logout-btn {
+    flex-shrink: 0;                 
+}
+
+/* MOBILE ADJUSTMENTS */
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 5px 10px;
+    }
+    header .user-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ==================================================
+   HEADER NEON/GLASS UPGRADE
+   Keeps balance, logout, and user pill aligned
+================================================== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: rgba(10, 30, 46, 0.85); /* subtle glass effect */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+}
+
+header .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .user-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
+    flex-shrink: 0;
+}
+
+/* USER PILL */
+header .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 25px;
+    padding: 6px 12px;
+    border: 1px solid rgba(0,242,255,0.5);
+    box-shadow: 0 0 12px rgba(0,242,255,0.4);
+    flex-shrink: 0;
+}
+
+/* BALANCE */
+header .balance-container {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    color: #00ff88;
+    white-space: nowrap;
+    text-shadow: 0 0 8px #00ff88;
+    flex-shrink: 0;
+}
+
+/* LOGOUT BUTTON */
+header .logout-btn {
+    background: rgba(255,0,204,0.1);
+    border: 1px solid #ff00cc;
+    color: #ff00cc;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00cc;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+header .logout-btn:hover {
+    background: #ff00cc;
+    color: #000;
+    text-shadow: 0 0 10px #ff00cc;
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width: 480px){
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 5px 10px;
+    }
+    header .user-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ================================
+   COOL HD NEON HEADER
+================================= */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    width: 100%;
+    background: rgba(10, 30, 46, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,242,255,0.3);
+    box-shadow: 0 0 25px rgba(0,242,255,0.2);
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* LEFT SECTION */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.volume-slider {
+    width: 100px;
+}
+
+/* REFERRAL CENTER */
+.referral-section {
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.ref-title {
+    font-size: 12px;
+    color: var(--neon-cyan);
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.ref-input-wrap {
+    display: flex;
+    gap: 5px;
+}
+
+.ref-input-wrap input {
+    flex: 1;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+/* RIGHT SECTION */
+header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .balance-container {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 8px #00ff88;
+}
+
+header .logout-btn, .withdraw-btn {
+    background: rgba(255,0,204,0.1);
+    border: 1px solid #ff00cc;
+    color: #ff00cc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00cc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+header .logout-btn:hover, header .withdraw-btn:hover {
+    background: #ff00cc;
+    color: #000;
+    text-shadow: 0 0 12px #ff00cc;
+}
+
+/* MOBILE FIX */
+@media(max-width:480px){
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .referral-section {
+        max-width: 100%;
+    }
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ================================
+   FIX HEADER BEHIND GAME
+================================= */
+header {
+    position: sticky;      /* keeps header on top while scrolling */
+    top: 0;                /* stick to the top */
+    left: 0;
+    right: 0;
+    z-index: 10000;        /* very high to stay above canvas and game */
+    background: rgba(10,30,46,0.95); /* slightly darker for clarity */
+    backdrop-filter: blur(12px);     /* glass effect */
+}
+
+/* ================================
+   FORCE HEADER ABOVE ALL & FIX ALIGNMENT
+================================= */
+header {
+    position: fixed;       /* keeps header always visible */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;        /* above all other elements */
+    background: rgba(10,30,46,0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0,242,255,0.3);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Make sure user info, balance, logout stay aligned */
+header .header-left,
+header .header-right,
+header .referral-section {
+    flex-shrink: 0;
+}
+
+/* Push game content below header */
+.game-container, #plinkoCanvas, .story-grid {
+    margin-top: 80px; /* adjust based on your header height */
+}
+
+/* ================================
+   HD NEON HEADER - LOGO + SOUND + BALANCE + LOGOUT
+================================= */
+header {
+    position: fixed;       /* keeps header on top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+    background: rgba(10,30,46,0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0,242,255,0.3);
+}
+
+/* LEFT SECTION */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+header .logo-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 0 15px var(--pink-glow);
+}
+.volume-slider { width: 100px; }
+
+/* REFERRAL CENTER */
+.referral-section {
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+.ref-title {
+    font-size: 12px;
+    color: var(--neon-cyan);
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+.ref-input-wrap { display: flex; gap: 5px; }
+.ref-input-wrap input {
+    flex: 1;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+/* RIGHT SECTION */
+header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+header .balance-container {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 8px #00ff88;
+    white-space: nowrap;
+}
+
+/* LOGOUT BUTTON - pill style */
+header .logout-btn, .withdraw-btn {
+    background: rgba(255,0,204,0.1);
+    border: 1px solid #ff00cc;
+    color: #ff00cc;
+    padding: 6px 12px;
+    border-radius: 25px; /* hair box look */
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00cc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+header .logout-btn:hover, .withdraw-btn:hover {
+    background: #ff00cc;
+    color: #000;
+    text-shadow: 0 0 12px #ff00cc;
+}
+
+/* PUSH GAME DOWN */
+.game-container, #plinkoCanvas, .story-grid {
+    margin-top: 80px; /* adjust according to header height */
+}
+
+/* MOBILE FIX */
+@media(max-width:480px){
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 5px 10px;
+    }
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .referral-section { max-width: 100%; }
+}
+
+
+/* ================================
+   FULL HD NEON HEADER - READY TO DROP
+================================= */
+header {
+    position: fixed;       /* stay on top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;     /* prevent drop */
+    padding: 10px 20px;
+    background: rgba(10,30,46,0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0,242,255,0.3);
+}
+
+/* LEFT SECTION: Logo + Volume + Withdraw */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .logo-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 0 15px var(--pink-glow);
+}
+
+.volume-slider { width: 100px; }
+
+header .withdraw-btn {
+    flex-shrink: 0;
+}
+
+/* ================================
+   REFERRAL BOX SIZE FIX
+================================= */
+.referral-section {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 12px;
+
+    /* LIMIT WIDTH TO KEEP HEADER INLINE */
+    max-width: 250px;   /* reduced from 400px */
+    width: 100%;
+}
+
+.referral-section input {
+    flex: 1;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.referral-section button {
+    flex-shrink: 0;
+    min-width: 50px;
+}
+
+/* RIGHT SECTION: keep inline */
+header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* ================================
+   FULL HD NEON HEADER - FINAL VERSION
+================================= */
+
+/* HEADER FIX */
+header {
+    position: fixed;       /* stays on top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;     /* prevent wrapping on desktop */
+    padding: 10px 20px;
+    background: rgba(10,30,46,0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 25px rgba(0,242,255,0.4);
+}
+
+/* LEFT: Logo + Volume + Withdraw */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .logo-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 0 15px var(--pink-glow);
+}
+
+.volume-slider { width: 100px; }
+
+header .withdraw-btn {
+    flex-shrink: 0;
+}
+
+/* CENTER: Referral Box */
+.referral-section {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 12px;
+    max-width: 250px;    /* smaller width to keep balance/logout inline */
+    width: 100%;
+}
+
+.referral-section input {
+    flex: 1;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.referral-section button {
+    flex-shrink: 0;
+    min-width: 50px;
+}
+
+/* RIGHT: Balance + Logout */
+header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+header .balance-container {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 8px #00ff88;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+header .logout-btn {
+    background: rgba(255,0,204,0.1);
+    border: 1px solid #ff00cc;
+    color: #ff00cc;
+    padding: 6px 12px;
+    border-radius: 25px; /* hair box style */
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00cc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+header .logout-btn:hover, .withdraw-btn:hover {
+    background: #ff00cc;
+    color: #000;
+    text-shadow: 0 0 12px #ff00cc;
+}
+
+/* PUSH GAME DOWN */
+.game-container, #plinkoCanvas, .story-grid {
+    margin-top: 80px; /* adjust header height */
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:480px){
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 5px 10px;
+        flex-wrap: wrap;
+    }
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .referral-section {
+        max-width: 100%;
+    }
+}
+
+/* ================================
+   HEADER: REFERRAL + BALANCE INLINE
+================================= */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(10,30,46,0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 25px rgba(0,242,255,0.4);
+    flex-wrap: nowrap;
+}
+
+/* LEFT SECTION */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+header .logo-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 0 15px var(--pink-glow);
+}
+.volume-slider { width: 100px; }
+header .withdraw-btn { flex-shrink: 0; }
+
+/* CENTER SECTION: Referral + Balance + Logout */
+.referral-center {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.referral-center input {
+    flex: 1;
+    min-width: 120px;   /* small but visible */
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.referral-center button,
+.referral-center .logout-btn {
+    flex-shrink: 0;
+    min-width: 50px;
+}
+
+.referral-center .balance-container {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 8px #00ff88;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Buttons */
+header .logout-btn, .withdraw-btn {
+    background: rgba(255,0,204,0.1);
+    border: 1px solid #99A3A3;
+    color: #808000;
+    padding: 6px 12px;
+    border-radius: 25px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff00cc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+header .logout-btn:hover, .withdraw-btn:hover {
+    background: #ff00cc;
+    color: #000;
+    text-shadow: 0 0 12px #ff00cc;
+}
+
+/* PUSH GAME DOWN */
+.game-container, #plinkoCanvas, .story-grid {
+    margin-top: 80px;
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:480px){
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 5px 10px;
+    }
+    .header-left { width: 100%; justify-content: space-between; }
+    .referral-center { max-width: 100%; flex-wrap: wrap; justify-content: flex-start; }
+}
+
+/* ================================
+   BALANCE + LOGOUT GLOW PULSE
+================================= */
+@keyframes neonPulse {
+    0% { box-shadow: 0 0 5px #99A3A3, 0 0 10px #99A3A3, 0 0 20px #99A3A3; }
+    50% { box-shadow: 0 0 10px #99A3A3, 0 0 20px #99A3A3, 0 0 30px #99A3A3; }
+    100% { box-shadow: 0 0 5px #99A3A3, 0 0 10px #99A3A3, 0 0 20px #99A3A3; }
+}
+
+header .balance-container {
+    animation: neonPulse 2s infinite alternate;
+}
+
+@keyframes buttonPulse {
+    0% { box-shadow: 0 0 5px #ff00cc, 0 0 10px #ff00cc, 0 0 15px #ff00cc; }
+    50% { box-shadow: 0 0 10px #ff00cc, 0 0 20px #ff00cc, 0 0 30px #ff00cc; }
+    100% { box-shadow: 0 0 5px #ff00cc, 0 0 10px #ff00cc, 0 0 15px #ff00cc; }
+}
+
+header .logout-btn {
+    /* animation: buttonPulse 2s infinite alternate; */  /* remove glow */
+}
+}
+
+/* ================================
+   LEFT SECTION - SMALLER SOUND + LOGOUT INLINE
+================================= */
+header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap; /* keep items inline */
+}
+
+.volume-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Reduce volume slider size */
+.volume-slider {
+    width: 60px;       /* smaller width */
+    height: 4px;
+}
+
+/* Logout button inline with volume */
+header .logout-btn {
+    font-size: 11px;       /* smaller text */
+    padding: 4px 8px;      /* smaller button */
+    border-radius: 20px;   /* pill style */
+    display: flex;
+    align-items: center;
+    
+}
+
+/* Withdraw button */
+header .withdraw-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 20px;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
