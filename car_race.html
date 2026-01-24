@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROBO ARENA</title>
+    <link rel="stylesheet" href="car-race.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="ground">
+        <div class="hud">
+            <div class="stat">SCORE: <span id="scoreVal">0</span></div>
+            <div class="health-bar-bg"><div id="healthFill"></div></div>
+        </div>
+
+        <div id="road">
+            <div id="playerCar" class="car-3d player"></div>
+            <div id="entityLayer"></div>
+        </div>
+
+        <div class="mobile-controls">
+            <button class="ctrl-btn" id="btnLeft">&lt;</button>
+            <button class="ctrl-btn shoot-btn" id="btnShoot">🥊</button>
+            <button class="ctrl-btn" id="btnRight">&gt;</button>
+        </div>
+
+        <div id="game-over" style="display:none;">
+            <h1>SYSTEM FAILURE</h1>
+            <button class="reboot-btn" onclick="location.reload()">REBOOT</button>
+        </div>
+    </div>
+    <script src="car-race.js"></script>
+</body>
+</html>
