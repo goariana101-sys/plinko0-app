@@ -2,47 +2,159 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Turbo Plinko | $10,000 Jackpot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/plinko.css">
-    
-    <!-- Babel for on-the-fly TSX compilation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBO ARENA | PRO</title>
 
-    <!-- Firebase SDKs (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="js/config.js"></script>
-
-    <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
-    <style>
-        body, html { margin: 0; padding: 0; background: #050a0f; color: white; overflow-x: hidden; font-family: sans-serif; }
-        #root { min-height: 100vh; }
-    </style>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel" data-type="module">
-        import React from 'react';
-        import ReactDOM from 'react-dom/client';
-        import App from './App.tsx';
+<!-- PREMIUM GAME LOADING / INSTALLER SCREEN -->
+<div id="installerScreen" class="installer-screen">
 
-        const rootElement = document.getElementById('root');
-        if (rootElement) {
-            const root = ReactDOM.createRoot(rootElement);
-            root.render(<App />);
-        }
-    </script>
+    <!-- Rotating glowing logo -->
+    <div class="installer-logo-wrap">
+        <img src="img/robo-logo.png" class="installer-logo" />
+    </div>
+
+    <!-- Message display -->
+    <div id="installerText" class="installer-text">Initializing...</div>
+
+    <!-- Progress bar -->
+    <div class="progress-wrap">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-percent">
+            <span id="progressPercent">0</span>%
+        </div>
+    </div>
+
+</div>
+
+<!-- Optional sounds -->
+<audio id="stepSound" src="sounds/boot.mp3" preload="auto"></audio>
+<audio id="completeSound" src="sounds/ready.mp3" preload="auto"></audio>
+
+    <!-- HEADER -->
+    <header class="pink-header">
+        <div style="display: flex; align-items: center;">
+            <img src="img/robo-logo.png" alt="Logo" class="brand-logo">
+            <span class="logo-text">ROBO<span class="pro-tag">ARENA</span></span>
+        </div>
+        <div class="user-status" style="font-size: 0.7rem; font-weight: 800; color: #00ff88;">● SERVER LIVE</div>
+    </header>
+
+    <!-- MARQUEE -->
+    <div class="pink-marquee">
+        <div class="marquee-inner">💎 $100 REFERRAL BONUS ACTIVE 💎 NEW PLINKO ENGINE v2.0 💎 INSTANT WITHDRAWALS 💎</div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <main class="hero-box">
+        <h1 class="main-title">THE ARENA</h1>
+        <div class="auth-buttons">
+            <button class="mega-glow-btn join" onclick="openModal('regModal')">JOIN THE PROS</button>
+            <button class="mega-glow-btn login" onclick="openModal('loginModal')">MEMBER LOGIN</button>
+        </div>
+    </main>
+
+    <!-- STORY GRID -->
+    <section class="story-grid">
+        <div class="story-card">
+            <i class="fas fa-dice-d20" style="color: #ffcc00;"></i>
+            <h3>ELITE PHYSICS</h3>
+            <p>Our Plinko engine uses real-time gravity simulation for the ultimate fair gamble experience.</p>
+        </div>
+        <div class="story-card">
+            <i class="fas fa-coins" style="color: #00f2ff;"></i>
+            <h3>FAST CASINO</h3>
+            <p>Deposit and withdraw in seconds. Your winnings are processed by our turbo predictive engine.</p>
+        </div>
+        <div class="story-card">
+            <i class="fas fa-clover" style="color: #00ff88;"></i>
+            <h3>LUCKY STREAKS</h3>
+            <p>Unlock multipliers up to 125x. The Arena rewards the boldest players with instant bonus. You can hit a big jackpot that can change your life if you are lucky.</p>
+        </div>
+    </section>
+
+    <!-- REGISTER MODAL -->
+    <div id="regModal" class="modal-overlay">
+        <div class="pink-glass-modal">
+            <h2 style="font-family: 'Orbitron'; text-align: center;">CREATE ACCOUNT</h2>
+            <div class="form-grid">
+                <input type="text" id="regFullName" placeholder="Full Name">
+                <input type="text" id="regUser" placeholder="Username">
+                <input type="number" id="regAge" placeholder="Age">
+                <select id="regGender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <input type="text" id="regAddress" placeholder="Physical Address">
+                <input type="tel" id="regPhone" placeholder="Phone Number">
+                <input type="email" id="regEmail" placeholder="Email Address">
+                <input type="password" id="regPass" placeholder="Create Password">
+                <input type="password" id="regPassConfirm" placeholder="Confirm Password">
+                <input type="text" id="regRef" placeholder="Referral Code (Optional)">
+            </div>
+            <button class="btn-submit" onclick="handleRegister()">ACTIVATE & CLAIM $100</button>
+            <button onclick="closeModal('regModal')" style="background:none; border:none; color:#777; width:100%; margin-top:10px; cursor:pointer;">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="pink-glass-modal">
+            <h2 style="font-family: 'Orbitron'; text-align: center;">WELCOME BACK</h2>
+            <div class="form-grid">
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPass" placeholder="Password">
+            </div>
+            <button class="btn-submit" onclick="handleLogin()">ENTER ARENA</button>
+            <button onclick="closeModal('loginModal')" style="background:none; border:none; color:#777; width:100%; margin-top:10px; cursor:pointer;">CANCEL</button>
+            <p style="text-align:right; font-size:0.75rem;">
+                <a href="#" onclick="resetPassword()" style="color:#00ff88;">Forgot password?</a>
+            </p>
+        </div>
+    </div>
+
+   <!-- CHATBOT BUBBLE -->
+<div id="chatbotBubble">💬</div>
+
+<!-- CHAT WINDOW -->
+<div id="chatbotWindow" class="hidden">
+    <div class="chat-header">
+        <span>ROBO ARENA SUPPORT</span>
+        <button id="chatClose">✖</button>
+    </div>
+
+    <div id="chatMessages"></div>
+
+    <button onclick="requestLiveAgent()" class="agent-btn">
+        Talk to Agent
+    </button>
+
+    <div class="chat-input-area">
+        <input id="chatInput" placeholder="Type your message..." />
+        <button onclick="sendChat()">Send</button>
+    </div>
+</div>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <img src="img/robo-logo.png" class="footer-logo">
+        <p style="font-size: 0.8rem; opacity: 0.5;">© 2026 ROBO ARENA PRO. SECURE ENCRYPTED GAMING.</p>
+    </footer>
+
+    <!-- SCRIPTS (LOAD IN CORRECT ORDER) -->
+    <script src="js/config.js"></script>
+    <script src="js/telegram.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/index.js"></script>
+
 </body>
-</html>
+                    </html>
