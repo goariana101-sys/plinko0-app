@@ -1,9 +1,19 @@
 /* =================================
    ROBO ARENA – AUTH ENGINE
    Firebase v8 Compatible
-   Full registration, login, referral, anti-abuse
+   Firestore ONLY
 ================================= */
-// Optional: prevent back button after logout
+
+/* ===============================
+   SAFETY CHECK (Firebase ready)
+================================ */
+if (!window.firebase || !window.auth || !window.db) {
+    console.error("Firebase not initialized yet");
+}
+
+/* ===============================
+   BACK BUTTON PROTECTION
+================================ */
 window.history.pushState(null, "", window.location.href);
 window.onpopstate = function () {
     window.history.pushState(null, "", window.location.href);
@@ -12,25 +22,22 @@ window.onpopstate = function () {
     }
 };
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 /* ===============================
    UI HELPERS
 ================================ */
-
 function showSpinner() {
-    document.getElementById("authSpinner").style.display = "flex";
+    document.getElementById("authSpinner")?.style && 
+    (document.getElementById("authSpinner").style.display = "flex");
 }
 
 function hideSpinner() {
-    document.getElementById("authSpinner").style.display = "none";
+    document.getElementById("authSpinner")?.style &&
+    (document.getElementById("authSpinner").style.display = "none");
 }
 
 /* ===============================
    REGISTER
 ================================ */
-
 async function handleRegister() {
     showSpinner();
 
@@ -46,7 +53,6 @@ async function handleRegister() {
     const confirm = regPassConfirm.value;
     const referralCode = regRef.value.trim();
 
-    // Validation
     if (!fullName || !email || !password || !country) {
         hideSpinner();
         alert("Please fill all required fields.");
@@ -59,14 +65,13 @@ async function handleRegister() {
         return;
     }
 
-    // Allowed countries
     const allowedCountries = [
-        "USA", "Canada", "United Kingdom", "Germany", "France", "Italy", "Spain",
-        "Netherlands", "Belgium", "Austria", "Switzerland", "Sweden", "Norway",
-        "Denmark", "Finland", "Ireland", "Poland", "Czech Republic", "Portugal",
-        "Greece", "Romania", "Hungary", "Slovakia", "Slovenia", "Croatia",
-        "Bulgaria", "Lithuania", "Latvia", "Estonia", "Luxembourg", "Iceland",
-        "Malta", "Cyprus"
+        "USA","Canada","United Kingdom","Germany","France","Italy","Spain",
+        "Netherlands","Belgium","Austria","Switzerland","Sweden","Norway",
+        "Denmark","Finland","Ireland","Poland","Czech Republic","Portugal",
+        "Greece","Romania","Hungary","Slovakia","Slovenia","Croatia",
+        "Bulgaria","Lithuania","Latvia","Estonia","Luxembourg","Iceland",
+        "Malta","Cyprus"
     ];
 
     if (!allowedCountries.includes(country)) {
@@ -75,20 +80,16 @@ async function handleRegister() {
         return;
     }
 
-    // Anti-abuse: get IP & device fingerprint
     const ipAddress = await getUserIP();
     const deviceFingerprint = getDeviceFingerprint();
 
-    // ---------------------
-    // MULTI-ACCOUNT / ANTI-ABUSE CHECK
-    // ---------------------
-    const existingUsersSnap = await db.collection("users")
+    const ipSnap = await db.collection("users")
         .where("ipAddress", "==", ipAddress)
         .get();
 
-    if (!existingUsersSnap.empty) {
+    if (!ipSnap.empty) {
         hideSpinner();
-        alert("Registration blocked: multiple accounts from same IP.");
+        alert("Multiple accounts from same IP are not allowed.");
         return;
     }
 
@@ -98,19 +99,16 @@ async function handleRegister() {
 
     if (!deviceSnap.empty) {
         hideSpinner();
-        alert("Registration blocked: multiple accounts from same device.");
+        alert("Multiple accounts from same device are not allowed.");
         return;
     }
 
     try {
-        // Create Firebase Auth account
         const cred = await auth.createUserWithEmailAndPassword(email, password);
         const user = cred.user;
 
-        // Send verification email
         await user.sendEmailVerification();
 
-        // Save user to Firestore
         await db.collection("users").doc(user.uid).set({
             fullName,
             username,
@@ -133,10 +131,10 @@ async function handleRegister() {
             ipAddress,
             deviceFingerprint,
             isFlagged: false,
+
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Apply referral bonus
         if (referralCode) {
             await applyReferralBonus(user.uid, referralCode);
         }
@@ -144,15 +142,15 @@ async function handleRegister() {
         alert(
             "Account created successfully!\n\n" +
             "A verification email has been sent.\n" +
-            "Please verify your email before logging in."
+            "Please verify before logging in."
         );
 
         await auth.signOut();
         closeModal("regModal");
 
     } catch (err) {
-        hideSpinner();
         alert(err.message);
+        console.error(err);
     }
 
     hideSpinner();
@@ -161,7 +159,6 @@ async function handleRegister() {
 /* ===============================
    LOGIN
 ================================ */
-
 async function handleLogin() {
     showSpinner();
 
@@ -178,17 +175,18 @@ async function handleLogin() {
         const cred = await auth.signInWithEmailAndPassword(email, password);
 
         if (!cred.user.emailVerified) {
-            hideSpinner();
-            alert("Email not verified. Please check your inbox.");
             await auth.signOut();
+            hideSpinner();
+            alert("Please verify your email first.");
             return;
         }
 
-        // Redirect to game
+        sessionStorage.setItem("userLoggedIn", "true");
+        sessionStorage.setItem("userId", cred.user.uid);
+
         window.location.href = "plinko.html";
 
     } catch (err) {
-        hideSpinner();
         alert(err.message);
     }
 
@@ -198,11 +196,10 @@ async function handleLogin() {
 /* ===============================
    RESET PASSWORD
 ================================ */
-
 async function resetPassword() {
     const email = loginEmail.value.trim();
     if (!email) {
-        alert("Please enter your email first.");
+        alert("Enter your email first.");
         return;
     }
 
@@ -215,37 +212,10 @@ async function resetPassword() {
 }
 
 /* ===============================
-   RESEND VERIFICATION EMAIL
-================================ */
-
-async function resendVerification() {
-    const user = auth.currentUser;
-
-    if (!user) {
-        alert("Please log in first.");
-        return;
-    }
-
-    if (user.emailVerified) {
-        alert("Your email is already verified.");
-        return;
-    }
-
-    try {
-        await user.sendEmailVerification();
-        alert("Verification email resent.");
-    } catch (err) {
-        alert(err.message);
-    }
-}
-
-/* ===============================
    REFERRAL BONUS
 ================================ */
-
 async function applyReferralBonus(newUserId, referralUsername) {
-    const snap = await db
-        .collection("users")
+    const snap = await db.collection("users")
         .where("username", "==", referralUsername)
         .limit(1)
         .get();
@@ -268,7 +238,6 @@ async function applyReferralBonus(newUserId, referralUsername) {
 /* ===============================
    ANTI-ABUSE HELPERS
 ================================ */
-
 async function getUserIP() {
     try {
         const res = await fetch("https://api.ipify.org?format=json");
