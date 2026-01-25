@@ -126,4 +126,4 @@ async function resetPassword() {
     } catch (err) {
         alert(err.message);
     }
-}
+           }
