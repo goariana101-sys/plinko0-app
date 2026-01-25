@@ -38,7 +38,7 @@ async function sendTelegramNotification(type, data) {
         message = `🏆 <b>GRAND JACKPOT WINNER!</b> 🏆\n` +
                   `━━━━━━━━━━━━━━━\n` +
                   `👤 User: ${data.name}\n` +
-                  `💰 Won: $89,000.00`;
+                  `💰 Won: $95,000.00`;
     }
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
