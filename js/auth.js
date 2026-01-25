@@ -66,7 +66,7 @@ async function handleRegister() {
         alert(
             "Registration successful!\n\n" +
             "A verification link has been sent to your email.\n" +
-            "Please check your inbox."
+            "Please check your inbox or spam box.from example:robo-123fb Team"
         );
 
         closeModal("regModal");
@@ -101,7 +101,7 @@ async function handleLogin() {
         sessionStorage.setItem("userLoggedIn", "true");
         sessionStorage.setItem("userId", cred.user.uid);
 
-        window.location.href = "plinko.html";
+        window.location.href = "games.html";
 
     } catch (err) {
         alert(err.message);
@@ -126,4 +126,4 @@ async function resetPassword() {
     } catch (err) {
         alert(err.message);
     }
-           }
+}
