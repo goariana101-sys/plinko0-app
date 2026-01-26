@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ------------------------- */
 const ADMIN_PASSKEY = "robo281990";
 
-function adminLogin() {
+async function adminLogin() {
     const key = document.getElementById("adminPasskey").value.trim();
 
     if (key !== ADMIN_PASSKEY) {
@@ -27,11 +27,21 @@ function adminLogin() {
         return;
     }
 
-    sessionStorage.setItem("adminLoggedIn", "true");
-    document.getElementById("adminLogin").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
+    try {
+        // 🔐 REQUIRED: Firebase login for admin
+        await firebase.auth().signInAnonymously();
 
-    logAdminAction("Admin logged in");
+        sessionStorage.setItem("adminLoggedIn", "true");
+
+        document.getElementById("adminLogin").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        loadAllUsers(); // ✅ now database will work
+
+    } catch (e) {
+        alert("Admin login failed");
+        console.error(e);
+    }
 }
 
 /* Restore session */
