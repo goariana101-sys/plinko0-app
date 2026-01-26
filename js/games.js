@@ -10,7 +10,7 @@ const ctx = canvas.getContext("2d");
 const ROWS = 11;
 const MULTIPLIERS = [125,14,5,1.3,0.4,0.2,0.2,0.4,1.3,5,14,125];
 canvas.width = 600;
-canvas.height = 650;
+canvas.height = 570;
 
 /* ================== USER ================== */
 let userBalance = 20;
@@ -92,7 +92,7 @@ function drawSideRails(){
     ctx.fillRect(canvas.width - 10, 0, 10, canvas.height);
 
     // Bottom rail
-    ctx.fillRect(0, canvas.height - 25, canvas.width, 25);
+    ctx.fillRect(0, canvas.height - 18, canvas.width, 18);
 
     ctx.restore();
 }
@@ -231,9 +231,10 @@ let index = Math.max(0, Math.min(MULTIPLIERS.length - 1, rawIndex));
             }
 
             updateUI();
-            isBallDropping=false;
-            clearTimeout(jackpotTimer);
-            jackpotTimer=null;
+saveBalance();   // ✅ SAVE TO FIRESTORE
+isBallDropping = false;
+clearTimeout(jackpotTimer);
+jackpotTimer = null;
         }
     },20);
 }
@@ -599,3 +600,10 @@ function sendMessage(){
 
 /* --- OPTIONAL: Show installer on page load --- */
 window.addEventListener('load', showInstaller);
+
+async function saveBalance() {
+    if (!currentUserId) return;
+    await db.collection("users").doc(currentUserId).update({
+        balance: userBalance
+    });
+}
