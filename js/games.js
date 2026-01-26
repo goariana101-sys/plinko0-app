@@ -6,6 +6,17 @@
 const canvas = document.getElementById("plinkoCanvas");
 const ctx = canvas.getContext("2d");
 
+// 🔒 GAME PAGE PROTECTION
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        // Not logged in → kick out
+        window.location.href = "index.html";
+    } else {
+        // Logged in → store user ID
+        window.currentUserId = user.uid;
+    }
+}); 
+
 /* ================== CONFIG ================== */
 const ROWS = 11;
 const MULTIPLIERS = [125,14,5,1.3,0.4,0.2,0.2,0.4,1.3,5,14,125];
@@ -224,11 +235,25 @@ if (x > canvas.width - 16) {
 let index = Math.max(0, Math.min(MULTIPLIERS.length - 1, rawIndex));
             glowIndex=index;
 
-            if(MULTIPLIERS[index]===125 && !hasWonJackpot){
-                triggerJackpot();
-            } else {
-                userBalance += currentBet*MULTIPLIERS[index];
-            }
+           if (multiplier === 125) {
+
+    // 🚫 BLOCK REPEAT JACKPOT
+    if (userData.hasWonJackpot === true) {
+        console.log("Jackpot already won. Skipping.");
+        return;
+    }
+
+    // ✅ FIRST-TIME JACKPOT
+    userBalance += jackpotAmount;
+
+    db.collection("users").doc(currentUserId).update({
+        balance: userBalance,
+        hasWonJackpot: true,
+        jackpotApproved: false
+    });
+
+    alert("🎉 JACKPOT WON! Admin approval required.");
+}
 
             updateUI();
 saveBalance();   // ✅ SAVE TO FIRESTORE
