@@ -1,20 +1,20 @@
 /* Page Title: Firebase & Telegram Configuration */
-
-// 1. Your Firebase Configuration
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyA83osiC8R4QEnvgM78l3gnNpZacR0zkHM",
     authDomain: "robo-123fb.firebaseapp.com",
     projectId: "robo-123fb",
-    storageBucket: "robo-123fb.firebasestorage.app",
+    storageBucket: "robo-123fb.appspot.com",
     messagingSenderId: "555715595228",
     appId: "1:555715595228:web:f3b323fdda8312f6aa1d19",
     measurementId: "G-5GVCLE2JH0"
 };
 
-// Initialize Firebase
+// 🔥 INITIALIZE FIREBASE (THIS WAS MISSING)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
 
 // Global variables for all other scripts to use
 window.db = firebase.firestore();
