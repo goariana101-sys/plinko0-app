@@ -96,19 +96,24 @@ td,th{
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAHkztGejStIi5rJFVJ7NO8IkVJJ2ByoE4",
-  authDomain: "oja-odan-6fc94.firebaseapp.com",
-  projectId: "oja-odan-6fc94",
-  storageBucket: "oja-odan-6fc94.appspot.com",
-  messagingSenderId: "1096739384978",
-  appId: "1:1096739384978:web:4a79774605ace1e2cbc04b",
-  measurementId: "G-Y48C843PEQ"
+  authDomain: "robo-123fb.firebaseapp.com",
+  projectId: "robo-123fb",
+  storageBucket: "robo-123fb.appspot.com",
+  messagingSenderId: "555715595228",
+  appId: "1:555715595228:web:f3b323fdda8312f6aa1d19",
+  measurementId: "G-5GVCLE2JH0"
 };
 
 firebase.initializeApp(firebaseConfig);
 </script>
 
-<!-- ================= ADMIN SCRIPT ================= -->
-<script src="admin.js"></script>
+<!-- ================= <!-- Firebase core -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-</body>
-</html>
+<!-- Your firebase config -->
+<script src="js/config.js"></script>
+
+<!-- Admin logic -->
+<script src="admin.js"></script>
