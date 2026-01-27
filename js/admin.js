@@ -27,37 +27,27 @@ document.addEventListener("DOMContentLoaded", () => {
 /* -------------------------
    ADMIN CONFIG
 ------------------------- */
-const ADMIN_PASSKEY = "robo281990";
-
-/* -------------------------
-   ADMIN LOGIN
-------------------------- */
 async function adminLogin() {
-    const passkey = document.getElementById("adminPasskey").value.trim();
     const email = document.getElementById("adminEmail").value.trim();
     const password = document.getElementById("adminPassword").value.trim();
+    const passkey = document.getElementById("adminPasskey").value.trim();
 
-    if (!email || !password) {
-        alert("Enter email and password");
-        return;
-    }
-
-    if (passkey !== ADMIN_PASSKEY) {
-        alert("Invalid admin passkey");
+    if (passkey !== "robo281990") {
+        alert("Wrong admin passkey");
         return;
     }
 
     try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        const res = await firebase.auth().signInWithEmailAndPassword(email, password);
+        console.log("Logged in:", res.user.email);
 
         sessionStorage.setItem("adminLoggedIn", "true");
         showDashboard();
         loadAllUsers();
-        logAdminAction("Admin logged in");
 
     } catch (err) {
-        console.error(err);
-        alert("Admin login failed: " + err.message);
+        console.error("LOGIN ERROR:", err.code, err.message);
+        alert(err.message);
     }
 }
 
