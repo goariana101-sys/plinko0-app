@@ -2,161 +2,130 @@
    ROBO ARENA ADMIN PANEL — STABLE VERSION
 =================================================== */
 
-/* -------------------------
-   FIREBASE REFERENCES
-------------------------- */
+console.log("ADMIN.JS LOADED");
+
 let db;
 
-/* Wait for Firebase */
+/* -------------------------
+   INIT FIREBASE
+------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
     if (!firebase.apps.length) {
-        alert("Firebase not loaded");
+        alert("Firebase not initialized");
         return;
     }
 
     db = firebase.firestore();
-
-    firebase.auth().onAuthStateChanged(user => {
-        if (user && sessionStorage.getItem("adminLoggedIn") === "true") {
-            showDashboard();
-            loadAllUsers();
-        }
-    });
+    checkAdminSession();
 });
 
 /* -------------------------
-   ADMIN CONFIG
-------------------------- */
-const ADMIN_PASSKEY = "robo281990";
-
-/* -------------------------
-   ADMIN LOGIN
+   ADMIN LOGIN (EMAIL/PASS)
 ------------------------- */
 async function adminLogin() {
     const passkey = document.getElementById("adminPasskey").value.trim();
-    const email = document.getElementById("adminEmail").value.trim();
-    const password = document.getElementById("adminPassword").value.trim();
 
-    if (!email || !password) {
-        alert("Enter email and password");
-        return;
-    }
-
-    if (passkey !== ADMIN_PASSKEY) {
-        alert("Invalid admin passkey");
+    if (passkey !== "robo281990") {
+        alert("❌ Invalid passkey");
         return;
     }
 
     try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        await firebase.auth().signInWithEmailAndPassword(
+            "admin@roboarena.com",
+            "robo281990"
+        );
 
         sessionStorage.setItem("adminLoggedIn", "true");
-        showDashboard();
+
+        document.getElementById("adminLogin").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
         loadAllUsers();
         logAdminAction("Admin logged in");
 
     } catch (err) {
         console.error(err);
-        alert("Admin login failed: " + err.message);
+        alert("❌ Admin login failed (check console)");
     }
 }
 
 /* -------------------------
-   UI HELPERS
+   SESSION RESTORE
 ------------------------- */
-function showDashboard() {
-    document.getElementById("adminLogin").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-}
-
-function logoutAdmin() {
-    firebase.auth().signOut();
-    sessionStorage.removeItem("adminLoggedIn");
-    location.reload();
+function checkAdminSession() {
+    if (sessionStorage.getItem("adminLoggedIn") === "true") {
+        document.getElementById("adminLogin").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        loadAllUsers();
+    }
 }
 
 /* -------------------------
    LOAD USERS
 ------------------------- */
 async function loadAllUsers() {
-    const tbody = document.getElementById("userListBody");
-    tbody.innerHTML = "<tr><td colspan='4'>Loading…</td></tr>";
+    const body = document.getElementById("userListBody");
+    body.innerHTML = "<tr><td colspan='4'>Loading…</td></tr>";
 
     try {
         const snap = await db.collection("users").get();
-        tbody.innerHTML = "";
+        body.innerHTML = "";
 
         snap.forEach(doc => {
             const u = doc.data();
-
-            tbody.innerHTML += `
+            body.innerHTML += `
                 <tr>
                     <td>${u.fullName || "Unknown"}</td>
                     <td>$${(u.balance || 0).toFixed(2)}</td>
                     <td>${u.hasWonJackpot ? "🏆 Won" : "—"}</td>
                     <td>
-                        <button onclick="creditUser('${doc.id}')">Add</button>
+                        <button onclick="creditUser('${doc.id}')">Add Funds</button>
                         <button onclick="resetJackpot('${doc.id}')">Reset JP</button>
-                        <button onclick="deleteUser('${doc.id}')">Delete</button>
                     </td>
                 </tr>
             `;
         });
-
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = "<tr><td colspan='4'>❌ Database error</td></tr>";
+    } catch (e) {
+        console.error(e);
+        body.innerHTML = "<tr><td colspan='4'>❌ Database error</td></tr>";
     }
 }
 
 /* -------------------------
-   CREDIT USER (MANUAL)
+   CREDIT USER
 ------------------------- */
-async function creditUser(uid) {
-    const amount = prompt("Enter amount:");
-    if (!amount || isNaN(amount)) return;
+async function creditUser(userId) {
+    const amount = Number(prompt("Enter amount:"));
+    if (!amount) return;
 
-    await db.collection("users").doc(uid).update({
-        balance: firebase.firestore.FieldValue.increment(Number(amount))
+    await db.collection("users").doc(userId).update({
+        balance: firebase.firestore.FieldValue.increment(amount)
     });
 
-    logAdminAction(`Credited $${amount} to ${uid}`);
+    logAdminAction(`Credited $${amount} to ${userId}`);
     loadAllUsers();
 }
 
 /* -------------------------
-   JACKPOT RESET
+   RESET JACKPOT
 ------------------------- */
-async function resetJackpot(uid) {
-    if (!confirm("Reset jackpot?")) return;
-
-    await db.collection("users").doc(uid).update({
-        hasWonJackpot: false,
-        jackpotApproved: false
+async function resetJackpot(userId) {
+    await db.collection("users").doc(userId).update({
+        hasWonJackpot: false
     });
 
-    logAdminAction(`Jackpot reset for ${uid}`);
-    loadAllUsers();
-}
-
-/* -------------------------
-   DELETE USER
-------------------------- */
-async function deleteUser(uid) {
-    if (!confirm("Delete user?")) return;
-
-    await db.collection("users").doc(uid).delete();
-    logAdminAction(`Deleted user ${uid}`);
+    logAdminAction(`Reset jackpot for ${userId}`);
     loadAllUsers();
 }
 
 /* -------------------------
    ADMIN LOGS
 ------------------------- */
-async function logAdminAction(action) {
-    await db.collection("adminLogs").add({
+function logAdminAction(action) {
+    db.collection("adminLogs").add({
         action,
         time: firebase.firestore.FieldValue.serverTimestamp(),
-        agent: navigator.userAgent
+        device: navigator.userAgent
     });
 }
