@@ -80,7 +80,7 @@ async function handleRegister() {
 }
 
 /* ===============================
-   LOGIN (NO VERIFICATION BLOCK)
+   LOGIN (EMAIL VERIFICATION SAFE)
 ================================ */
 async function handleLogin() {
     showSpinner();
@@ -96,16 +96,29 @@ async function handleLogin() {
 
     try {
         const cred = await auth.signInWithEmailAndPassword(email, password);
+        const user = cred.user;
 
-        // ✅ DO NOT BLOCK LOGIN
+        // 🔒 BLOCK UNVERIFIED EMAILS
+        if (!user.emailVerified) {
+            hideSpinner();
+            alert("❌ Please verify your email before logging in.");
+
+            await auth.signOut();
+            return;
+        }
+
+        // ✅ VERIFIED USER
         sessionStorage.setItem("userLoggedIn", "true");
-        sessionStorage.setItem("userId", cred.user.uid);
+        sessionStorage.setItem("userId", user.uid);
 
+        hideSpinner();
         window.location.href = "games.html";
 
     } catch (err) {
+        hideSpinner();
         alert(err.message);
     }
+}
 
     hideSpinner();
 }
