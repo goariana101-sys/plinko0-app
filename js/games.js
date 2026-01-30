@@ -14,6 +14,21 @@ let currentBalance = 0;
 const canvas = document.getElementById("plinkoCanvas");
 const ctx = canvas.getContext("2d");
 
+// ===============================
+// LOAD USER BALANCE FROM FIRESTORE
+// ===============================
+async function loadUserBalance(uid) {
+    const doc = await db.collection("users").doc(uid).get();
+
+    if (!doc.exists) {
+        alert("User data not found.");
+        return;
+    }
+
+    currentBalance = doc.data().balance || 0;
+    updateBalanceUI(currentBalance);
+}
+
 // 🔒 GAME PAGE PROTECTION
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
