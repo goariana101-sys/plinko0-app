@@ -80,9 +80,13 @@ async function handleRegister() {
 }
 
 /* ===============================
+   LOGIN (NO VERIFICATION BLOCK)
+================================ */
+/* ===============================
    LOGIN (EMAIL VERIFICATION SAFE)
 ================================ */
 async function handleLogin() {
+    alert("LOGIN FUNCTION CALLED"); // TEMP TEST
     showSpinner();
 
     const email = loginEmail.value.trim();
@@ -133,6 +137,39 @@ async function resetPassword() {
     try {
         await auth.sendPasswordResetEmail(email);
         alert("Password reset email sent.");
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+/* ===============================
+   RESEND VERIFICATION EMAIL
+================================ */
+async function resendVerification() {
+    const email = loginEmail.value.trim();
+    const password = loginPass.value;
+
+    if (!email || !password) {
+        alert("Enter email and password first.");
+        return;
+    }
+
+    try {
+        // Login temporarily to resend email
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        const user = cred.user;
+
+        if (user.emailVerified) {
+            alert("Your email is already verified.");
+            await auth.signOut();
+            return;
+        }
+
+        await user.sendEmailVerification();
+        await auth.signOut();
+
+        alert("📩 Verification email resent. Check inbox and spam.");
+
     } catch (err) {
         alert(err.message);
     }
