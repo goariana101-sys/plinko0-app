@@ -319,8 +319,9 @@ function dropDisk(force=false){
 }
 
 /* ================== UI ================== */
-function updateUI(){
-    document.getElementById("balanceDisplay").innerText=userBalance.toFixed(2);
+function updateUI() {
+    const el = document.getElementById("balanceDisplay");
+    if (el) el.innerText = userBalance.toFixed(2);
 }
 
 /* ================== POPUP ================== */
