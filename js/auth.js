@@ -80,13 +80,9 @@ async function handleRegister() {
 }
 
 /* ===============================
-   LOGIN (NO VERIFICATION BLOCK)
-================================ */
-/* ===============================
    LOGIN (EMAIL VERIFICATION SAFE)
 ================================ */
 async function handleLogin() {
-    alert("LOGIN FUNCTION CALLED"); // TEMP TEST
     showSpinner();
 
     const email = loginEmail.value.trim();
