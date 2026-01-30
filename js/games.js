@@ -36,15 +36,26 @@ function updateBalanceUI(amount) {
 }
 
 // 🔒 GAME PAGE PROTECTION
-firebase.auth().onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged(async (user) => {
     if (!user) {
-        // Not logged in → kick out
         window.location.href = "index.html";
-    } else {
-        // Logged in → store user ID
-        window.currentUserId = user.uid;
+        return;
     }
-}); 
+
+    currentUserId = user.uid;
+
+    const doc = await db.collection("users").doc(user.uid).get();
+    if (!doc.exists) {
+        alert("User data missing");
+        return;
+    }
+
+    const data = doc.data();
+    userBalance = Number(data.balance || 0);
+    hasWonJackpot = data.hasWonJackpot === true;
+
+    updateUI();
+});
 
 /* ================== CONFIG ================== */
 const ROWS = 11;
