@@ -278,37 +278,25 @@ let index = Math.max(0, Math.min(MULTIPLIERS.length - 1, rawIndex));
 clearTimeout(jackpotTimer);
 jackpotTimer = null;
 
-           if (multiplier === 125) {
-
     //// 🎯 CHECK MULTIPLIER RESULT
 const landedMultiplier = MULTIPLIERS[index];
 
 // 🏆 JACKPOT LOGIC (ONE-TIME ONLY)
+const landedMultiplier = MULTIPLIERS[index];
+
+// 🏆 JACKPOT — ONE TIME ONLY
 if (landedMultiplier === 125 && !hasWonJackpot) {
     hasWonJackpot = true;
 
     const jackpotWin = 95000;
     userBalance += jackpotWin;
 
-    await db.collection("users").doc(currentUserId).update({
+    db.collection("users").doc(currentUserId).update({
         balance: userBalance,
         hasWonJackpot: true
     });
 
-    updateUI();
     alert("🎉 JACKPOT WON!");
-}
-
-    // ✅ FIRST-TIME JACKPOT
-    userBalance += jackpotAmount;
-
-    db.collection("users").doc(currentUserId).update({
-        balance: userBalance,
-        hasWonJackpot: true,
-        jackpotApproved: false
-    });
-
-    alert("🎉 JACKPOT WON! Admin approval required.");
 }
 
             updateUI();
