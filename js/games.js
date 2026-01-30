@@ -8,8 +8,9 @@
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+let userBalance = 0;
 let currentUserId = null;
-let currentBalance = 0;
+let hasWonJackpot = false;
 
 const canvas = document.getElementById("plinkoCanvas");
 const ctx = canvas.getContext("2d");
