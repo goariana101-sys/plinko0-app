@@ -52,8 +52,7 @@ canvas.width = 600;
 canvas.height = 570;
 
 /* ================== USER ================== */
-let currentBalance = 0;
-let currentBet = 5;
+
 let userName = "User";
 let currentUserId = null;
 let hasWonJackpot = false;
