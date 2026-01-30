@@ -552,7 +552,7 @@ firebase.auth().onAuthStateChanged(async user => {
     if (!doc.exists) return;
 
     const data = doc.data();
-    userBalance = data.balance || 20;
+    userBalance = Number(data.balance ?? 0);
     userName = data.fullName || "User";
     hasWonJackpot = data.hasWonJackpot || false;
 
