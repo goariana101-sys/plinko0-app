@@ -29,6 +29,11 @@ async function loadUserBalance(uid) {
     updateBalanceUI(currentBalance);
 }
 
+function updateBalanceUI(amount) {
+    const el = document.getElementById("balance");
+    if (el) el.textContent = "$" + Number(amount).toFixed(2);
+}
+
 // 🔒 GAME PAGE PROTECTION
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
@@ -47,7 +52,7 @@ canvas.width = 600;
 canvas.height = 570;
 
 /* ================== USER ================== */
-let userBalance = 20;
+let currentBalance = 0;
 let currentBet = 5;
 let userName = "User";
 let currentUserId = null;
