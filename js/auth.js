@@ -80,13 +80,13 @@ async function handleRegister() {
 }
 
 /* ===============================
+   LOGIN (NO VERIFICATION BLOCK)
+================================ */
+/* ===============================
    LOGIN (EMAIL VERIFICATION SAFE)
 ================================ */
 async function handleLogin() {
-    alert("LOGIN FUNCTION CALLED"); // 👈 TEMP TEST
-    showSpinner();
-
-async function handleLogin() {
+    alert("LOGIN FUNCTION CALLED"); // TEMP TEST
     showSpinner();
 
     const email = loginEmail.value.trim();
@@ -104,10 +104,9 @@ async function handleLogin() {
 
         // 🔒 BLOCK UNVERIFIED EMAILS
         if (!user.emailVerified) {
+            await auth.signOut();
             hideSpinner();
             alert("❌ Please verify your email before logging in.");
-
-            await auth.signOut();
             return;
         }
 
@@ -120,11 +119,9 @@ async function handleLogin() {
 
     } catch (err) {
         hideSpinner();
-        alert(err.message);
+        alert("LOGIN ERROR: " + err.message);
+        console.error(err);
     }
-}
-
-    hideSpinner();
 }
 
 /* ===============================
