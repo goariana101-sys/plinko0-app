@@ -274,13 +274,30 @@ if (x > canvas.width - 16) {
 let index = Math.max(0, Math.min(MULTIPLIERS.length - 1, rawIndex));
             glowIndex=index;
 
+           isBallDropping = false;
+clearTimeout(jackpotTimer);
+jackpotTimer = null;
+
            if (multiplier === 125) {
 
-    // 🚫 BLOCK REPEAT JACKPOT
-    if (userData.hasWonJackpot === true) {
-        console.log("Jackpot already won. Skipping.");
-        return;
-    }
+    //// 🎯 CHECK MULTIPLIER RESULT
+const landedMultiplier = MULTIPLIERS[index];
+
+// 🏆 JACKPOT LOGIC (ONE-TIME ONLY)
+if (landedMultiplier === 125 && !hasWonJackpot) {
+    hasWonJackpot = true;
+
+    const jackpotWin = 95000;
+    userBalance += jackpotWin;
+
+    await db.collection("users").doc(currentUserId).update({
+        balance: userBalance,
+        hasWonJackpot: true
+    });
+
+    updateUI();
+    alert("🎉 JACKPOT WON!");
+}
 
     // ✅ FIRST-TIME JACKPOT
     userBalance += jackpotAmount;
@@ -675,6 +692,7 @@ window.addEventListener('load', showInstaller);
 
 async function saveBalance() {
     if (!currentUserId) return;
+
     await db.collection("users").doc(currentUserId).update({
         balance: userBalance
     });
