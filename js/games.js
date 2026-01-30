@@ -2,6 +2,14 @@
    PLINKO GAME ENGINE — FULL WORKING VERSION
    WITH JACKPOT, FIRE TRAIL, CERTIFICATE, EARLY-WITHDRAW, WALLET, TELEGRAM
 ===================================================== */
+// ===============================
+// FIREBASE GAME SESSION
+// ===============================
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserId = null;
+let currentBalance = 0;
 
 const canvas = document.getElementById("plinkoCanvas");
 const ctx = canvas.getContext("2d");
