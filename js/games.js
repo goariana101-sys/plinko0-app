@@ -304,16 +304,23 @@ jackpotTimer = null;
 }
 
 /* ================== DROP ================== */
-function dropDisk(force=false){
-    if(isBallDropping) return;
-    if(!force && userBalance<currentBet){
+function dropDisk(force = false) {
+    if (isBallDropping) return;
+
+    if (!force && userBalance < currentBet) {
         showPopup("Insufficient balance");
         return;
     }
-    isBallDropping=true;
-    jackpotTriggered=false;
-    if(!force) userBalance-=currentBet;
-    updateUI();
+
+    isBallDropping = true;
+
+    if (!force) {
+        userBalance -= currentBet;
+        saveBalance();
+        updateUI();
+    }
+
+    jackpotTriggered = false;
     startJackpotTimer();
     animateBall(force);
 }
